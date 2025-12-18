@@ -1,0 +1,30 @@
+python submitit_pretrain.py \
+    --job_dir exp/pixio_vit5b16_8cls_mask75_4grid_webdata_bs16384_blr1.25e-5_iters1605x800 \
+    --job_name pixio5b \
+    --ngpus 8 \
+    --nodes 32 \
+    --partition <your_partition> \
+    --account <your_account> \
+    --qos <your_qos> \
+    --batch_size 64 \
+    --model pixio_vit5b16_enc3072x48h32_dec512x32h16 \
+    --n_cls_tokens 8 \
+    --drop_path 0.4 \
+    --norm_pix_loss \
+    --mask_ratio 0.75 \
+    --mask_grid 4 \
+    --dataset_type webdataset \
+    --data_path <your/webdataset/path> \
+    --json_path <your/json/path/for/webdataset> \
+    --soft_sampling \
+    --hist_thresh 4.5 \
+    --imgres_thresh 320 \
+    --input_size 256 \
+    --crop_scale_min 0.2 \
+    --iters_per_epoch 1605 \
+    --epochs 800 \
+    --warmup_epochs 80 \
+    --blr 1.25e-5 \
+    --weight_decay 0.05 \
+    --save_freq 20 \
+    --num_workers 6

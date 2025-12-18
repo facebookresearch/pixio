@@ -1,0 +1,30 @@
+python submitit_distill.py \
+    --job_dir exp/distill_pixio_vit5b16_to_vit1b16+vith16_8cls_mask50_4grid_imagenet_bs8192_lr1e-3_iters1605x400 \
+    --job_name dist1b+h \
+    --ngpus 8 \
+    --nodes 16 \
+    --partition <your_partition> \
+    --account <your_account> \
+    --qos <your_qos> \
+    --batch_size 64 \
+    --teacher_model pixio_vit5b16 \
+    --teacher_pretrained <your/pre-trained/teacher/checkpoint> \
+    --student_model pixio_vit1b16 pixio_vith16 \
+    --loss_fn_cls cosine \
+    --loss_fn_patch cosine \
+    --loss_fuse avg \
+    --n_cls_tokens 8 \
+    --drop_path 0.4 \
+    --mask_ratio 0.5 \
+    --mask_grid 4 \
+    --dataset_type imagenet \
+    --data_path <your/imagenet/path> \
+    --input_size 256 \
+    --crop_scale_min 0.2 \
+    --iter_per_epoch 1605 \
+    --epochs 400 \
+    --warmup_epochs 40 \
+    --lr 1e-3 \
+    --weight_decay 0.05 \
+    --save_freq 20 \
+    --num_workers 6

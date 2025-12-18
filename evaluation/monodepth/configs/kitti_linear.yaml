@@ -1,0 +1,11 @@
+dataset: kitti
+data_root: data/kitti
+min_depth: 0.001
+max_depth: 80
+crop_size: 256
+
+epochs: 60
+batch_size: 4 # per GPU x 8 GPUs
+lr: 0.0002
+
+head: linear

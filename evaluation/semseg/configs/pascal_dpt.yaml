@@ -1,0 +1,10 @@
+dataset: pascal
+data_root: data/pascal
+nclass: 21
+crop_size: 256
+
+epochs: 60
+batch_size: 4 # per GPU x 8 GPUs
+lr: 0.0001
+
+head: dpt

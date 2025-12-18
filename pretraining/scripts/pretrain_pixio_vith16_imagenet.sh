@@ -1,0 +1,26 @@
+python submitit_pretrain.py \
+    --job_dir exp/pixio_vith16_8cls_mask75_4grid_imagenet_bs8192_blr2.5e-5_iters1605x400 \
+    --job_name pixioh \
+    --ngpus 8 \
+    --nodes 16 \
+    --partition <your_partition> \
+    --account <your_account> \
+    --qos <your_qos> \
+    --batch_size 64 \
+    --model pixio_vith16_enc1280x32h16_dec512x32h16 \
+    --n_cls_tokens 8 \
+    --drop_path 0.4 \
+    --norm_pix_loss \
+    --mask_ratio 0.75 \
+    --mask_grid 4 \
+    --dataset_type imagenet \
+    --data_path <your/imagenet-1k/or/imagenet-21k/path> \
+    --input_size 256 \
+    --crop_scale_min 0.2 \
+    --iters_per_epoch 1605 \
+    --epochs 400 \
+    --warmup_epochs 40 \
+    --blr 2.5e-5 \
+    --weight_decay 0.05 \
+    --save_freq 20 \
+    --num_workers 6
