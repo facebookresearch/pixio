@@ -1,0 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.8.0
+torchvision==0.23.0
+numpy==2.1.2
+webdataset==1.0.2
+submitit==1.2.1
+wandb==0.21.4

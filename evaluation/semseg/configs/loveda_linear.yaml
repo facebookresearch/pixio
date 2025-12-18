@@ -1,0 +1,10 @@
+dataset: loveda
+data_root: data/loveda
+nclass: 7
+crop_size: 256
+
+epochs: 60
+batch_size: 1 # per GPU x 8 GPUs
+lr: 0.0004
+
+head: linear
