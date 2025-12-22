@@ -3,7 +3,7 @@ Pixio
 </h1>
 
 <h3 align="center">
-A vision SSL representation dedicated to dense CV tasks 
+A simple SSL representation dedicated to dense CV tasks 
 </h3>
 
 <div align="center">
