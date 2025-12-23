@@ -3,7 +3,7 @@ Pixio
 </h1>
 
 <h3 align="center">
-A simple SSL representation dedicated to dense CV tasks 
+A capable vision encoder dedicated to dense tasks, simply by pixel reconstruction
 </h3>
 
 <div align="center">
@@ -32,6 +32,36 @@ Pixio also updates MAE's pre-training data from ImageNet-1K to [MetaCLIP-2B](htt
 <img src="./assets/pixio.png" width=90% height=90% 
 class="center">
 </p>
+
+## Performance
+
+**Monocular depth estimation ($\delta_1 \uparrow$, frozen encoder)**
+
+| Method    | ViT   | #Params | NYUv2 (DPT head) | KITTI (DPT head) | NYUv2 (linear head) | KITTI (linear head) |
+| :-------- | ----: | ------: | :--------------: | :--------------: | :-----------------: | :-----------------: |
+| MAE       | H/14  | 631M    | 80.8             | 90.9             | 70.3                | 79.4                |
+| DINOv2    | g/14  | 1137M   | 90.1             | 94.6             | 75.3                | 78.1                |
+| DINOv3    | H+/16 | 841M    | 93.2             | 95.6             | 76.3                | 73.2                |
+| **Pixio** | H/16  | 631M    | **95.5**         | **96.7**         | **90.8**            | **90.3**            |
+
+
+**Feed-forward 3D reconstruction ([MapAnything](https://github.com/facebookresearch/map-anything), ScanNet++ v2)**
+
+| Method    | ViT   | #Params | Scale (rel $\downarrow$) | Points (rel $\downarrow$) | Points ($\tau \uparrow$) | Pose (auc@5 $\uparrow$) | Depth (rel $\downarrow$) | Depth ($\tau \uparrow$) |
+| :-------- | ----: | ------: | :----------------------: | :-----------------------: | :----------------------: | :--------------------: | :-----------------------: | :-------------------------: |
+| MAE       | H/14  | 631M    | 0.050                    | 0.057                     | 63.3                     | 65.6                   | 0.058                     | 55.4                        | 
+| DINOv2    | L/14  | 304M    | 0.041                    | 0.052                     | 67.6                     | 73.2                   | 0.052                     | 60.6                        |
+| DINOv3    | H+/16 | 841M    | 0.035                    | 0.051                     | 69.0                     | 68.5                   | 0.051                     | 61.2                        |
+| **Pixio** | H/16  | 631M    | **0.029**                | **0.041**                 | **78.8**                 | **80.5**               | **0.042**                 | **72.4**                    |
+
+**Semantic segmentation (mIoU $\uparrow$, frozen encoder)**
+
+| Method    | ViT   | #Params | ADE20K (DPT) | VOC (DPT) | LoveDA (DPT) | ADE20K (linear) | VOC (linear) | LoveDA (linear) |
+| :-------- | ----: | ------: | :----------: | :-------: | :----------: | :-------------: | :----------: | :-------------: |
+| MAE       | H/14  | 631M    | 37.6         | 76.0      | 50.2         | 35.2            | 70.8         | 47.6            | 
+| DINOv2    | g/14  | 1137M   | 51.5         | 85.2      | 55.0         | 49.0            | 81.8         | 51.9            |
+| DINOv3    | H+/16 | 841M    | 52.3         | 85.6      | **55.3**     | **50.3**        | 82.1         | 52.7            |
+| **Pixio** | H/16  | 631M    | **53.6**     | **85.9**  | 54.7         | 50.2            | **82.2**     | **53.9**        |
 
 ## Installation
 
