@@ -3,7 +3,7 @@ Pixio
 </h1>
 
 <h3 align="center">
-A capable vision encoder dedicated to dense tasks, simply by pixel reconstruction
+A capable vision encoder dedicated to dense prediction, simply by pixel reconstruction
 </h3>
 
 <div align="center">
@@ -165,9 +165,9 @@ processor = AutoImageProcessor.from_pretrained("facebook/pixio-vith16")
 model = AutoModel.from_pretrained("facebook/pixio-vith16")
 
 inputs = processor(images=img, return_tensors="pt")
-outputs = model(**inputs)
-features_norm = outputs.last_hidden_state # class tokens + patch tokens after last LayerNorm
-features = outputs.hidden_states[-1] # class tokens + patch tokens before last LayerNorm
+outputs = model(**inputs, output_hidden_states=True)
+features_norm = outputs.last_hidden_state # 8 class tokens + patch tokens after last LayerNorm
+features = outputs.hidden_states[-1] # 8 class tokens + patch tokens before last LayerNorm
 ```
 
 ## Pre-training
