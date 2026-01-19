@@ -8,21 +8,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import common.misc as misc
-import common.pixio as pixio
-
 
 class LinearDepth(nn.Module):
     def __init__(
         self, 
-        encoder, 
-        pretrained_ckp
+        encoder
     ):
         super(LinearDepth, self).__init__()
         
-        self.encoder = pixio.__dict__[encoder]()
-        misc.load_pretrained_ckp(self.encoder, pretrained_ckp)
-        
+        self.encoder = encoder
+
         self.head = nn.Sequential(
             nn.BatchNorm2d(self.encoder.embed_dim * 2),
             nn.Conv2d(self.encoder.embed_dim * 2, 1, 1)

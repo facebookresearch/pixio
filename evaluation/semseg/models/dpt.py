@@ -12,8 +12,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import common.misc as misc
-import common.pixio as pixio
 from semseg.models.blocks import FeatureFusionBlock, _make_scratch
 
 
@@ -121,16 +119,14 @@ class DPTSeg(nn.Module):
     def __init__(
         self, 
         encoder, 
-        pretrained_ckp,
         nclass,
         features=256, 
         out_channels=[256, 512, 1024, 1024],
         use_bn=False
     ):
         super(DPTSeg, self).__init__()
-        
-        self.encoder = pixio.__dict__[encoder]()
-        misc.load_pretrained_ckp(self.encoder, pretrained_ckp)
+
+        self.encoder = encoder
         
         self.head = DPTHead(
             nclass, self.encoder.embed_dim * 2, features, out_channels, use_bn

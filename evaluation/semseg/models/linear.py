@@ -8,21 +8,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import common.misc as misc
-import common.pixio as pixio
-
 
 class LinearSeg(nn.Module):
     def __init__(
         self, 
-        encoder, 
-        pretrained_ckp,
+        encoder,
         nclass
     ):
         super(LinearSeg, self).__init__()
 
-        self.encoder = pixio.__dict__[encoder]()
-        misc.load_pretrained_ckp(self.encoder, pretrained_ckp)
+        self.encoder = encoder
         
         self.head = nn.Sequential(
             nn.BatchNorm2d(self.encoder.embed_dim * 2),

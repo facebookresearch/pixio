@@ -28,15 +28,17 @@ from semseg.models.dpt import DPTSeg
 from semseg.models.linear import LinearSeg
 from semseg.util.misc import intersectionAndUnion, CLASSES, AverageMeter
 
+from dataclasses import dataclass
 
-parser = argparse.ArgumentParser(description='Pixio evaluation in semantic segmentation')
+
+parser = argparse.ArgumentParser(description='pixio evaluation in semantic segmentation')
 parser.add_argument('--config', type=str, required=True)
-parser.add_argument('--encoder', type=str, default='pixio_vith16')
+parser.add_argument('--encoder', type=str, default='pixio_1b')
 parser.add_argument('--pretrained_ckp', type=str)
 parser.add_argument('--dtype', default='bf16', choices=['fp16', 'bf16', 'fp32'])
 parser.add_argument('--local_rank', '--local-rank', default=0, type=int)
 parser.add_argument('--port', default=None, type=int)
-
+parser.add_argument('--outdir', type=str, default=None)
 
 @torch.no_grad()
 def evaluate(model, loader, args):
@@ -104,7 +106,7 @@ def main():
     args = parser.parse_args()
 
     cfg = yaml.load(open(args.config, 'r'), Loader=yaml.Loader)
-    
+
     for key, value in cfg.items():
         setattr(args, key, value)
     
@@ -116,11 +118,23 @@ def main():
     
     cudnn.enabled = True
     cudnn.benchmark = True
-    
+
+    if 'pixio' in args.encoder:
+        import common.pixio as pixio
+        import common.misc as misc
+        encoder = pixio.__dict__[args.encoder]()
+        misc.load_pretrained_ckp(encoder, args.pretrained_ckp)
+    else:  # <repo_path>:<module_name>:<func_name>
+        code_path, module_name, func_name = args.encoder.split(':')
+        import sys, importlib
+        sys.path.append(code_path)
+        module = importlib.import_module(module_name)
+        encoder = getattr(module, func_name)()
+
     if args.head == 'dpt':
-        model = DPTSeg(args.encoder, args.pretrained_ckp, args.nclass)
+        model = DPTSeg(encoder, args.nclass)
     elif args.head == 'linear':
-        model = LinearSeg(args.encoder, args.pretrained_ckp, args.nclass)
+        model = LinearSeg(encoder, args.nclass)
     else:
         raise NotImplementedError
     
@@ -202,6 +216,11 @@ def main():
             
             previous_best = max(mIoU, previous_best)
             print(f'[{cur_time}]  Epoch: [{epoch}]  Previous best >>>> MeanIoU: {previous_best:.2f}\n')
+
+    if rank == 0 and args.outdir is not None:
+        import json
+        with open(f'{args.outdir}/semseg/{args.config.split('/')[-1].split('.')[0]}/result.json', 'w') as f:
+            json.dump({'key_metric': previous_best}, f)
     
     dist.barrier()
 

@@ -24,13 +24,14 @@ from monodepth.models.linear import LinearDepth
 from monodepth.util.misc import SiLogLoss, eval_depth
 
 
-parser = argparse.ArgumentParser(description='Pixio evaluation in monocular depth estimation')
+parser = argparse.ArgumentParser(description='pixio evaluation in monocular depth estimation')
 parser.add_argument('--config', type=str, required=True)
-parser.add_argument('--encoder', type=str, default='pixio_vith16')
+parser.add_argument('--encoder', type=str, default='pixio_1b')
 parser.add_argument('--pretrained_ckp', type=str)
 parser.add_argument('--dtype', default='bf16', choices=['fp16', 'bf16', 'fp32'])
 parser.add_argument('--local_rank', '--local-rank', default=0, type=int)
 parser.add_argument('--port', default=None, type=int)
+parser.add_argument('--outdir', type=str, default=None)
 
 
 @torch.no_grad()
@@ -84,11 +85,24 @@ def main():
     
     cudnn.enabled = True
     cudnn.benchmark = True
-    
+
+    if 'pixio' in args.encoder:
+        import common.pixio as pixio
+        import common.misc as misc
+        encoder = pixio.__dict__[args.encoder]()
+        misc.load_pretrained_ckp(encoder, args.pretrained_ckp)
+    else:  # <repo_path>:<module_name>:<func_name>
+        code_path, module_name, func_name = args.encoder.split(':')
+        import sys, importlib
+        sys.path.append(code_path)
+        module = importlib.import_module(module_name)
+        encoder = getattr(module, func_name)()
+
+
     if args.head == 'dpt':
-        model = DPTDepth(args.encoder, args.pretrained_ckp)
+        model = DPTDepth(encoder)
     elif args.head == 'linear':
-        model = LinearDepth(args.encoder, args.pretrained_ckp)
+        model = LinearDepth(encoder)
     else:
         raise NotImplementedError
     
@@ -245,6 +259,12 @@ def main():
             print(f'[{cur_time}]  ' + '{:8.3f}, {:8.3f}, {:8.3f}, {:8.3f}, {:8.3f}, {:8.3f}, {:8.3f}, '
                   '{:8.3f}, {:8.3f}'.format(*tuple(previous_best.values())))
             print(f'[{cur_time}]  ==========================================================================================\n')
+
+    if rank == 0 and args.outdir is not None:
+        import json
+        with open(f'{args.outdir}/monodepth/{args.config.split('/')[-1].split('.')[0]}/result.json', 'w') as f:
+            previous_best['key_metric'] = previous_best['rmse']
+            json.dump(previous_best, f)
     
     dist.barrier()
     

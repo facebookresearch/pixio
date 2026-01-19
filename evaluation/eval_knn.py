@@ -54,8 +54,16 @@ def extract_feature_pipeline(args):
     print(f'Data loaded with {len(dataset_train)} train and {len(dataset_val)} val imgs.')
     
     # ============ building network ... ============
-    model = pixio.__dict__[args.model]()
-    misc.load_pretrained_ckp(model, args.pretrained_ckp)
+    if 'pixio' in args.model:
+        model = pixio.__dict__[args.model]()
+        misc.load_pretrained_ckp(model, args.pretrained_ckp)
+    else:  # <repo_path>:<module_name>:<func_name>
+        code_path, module_name, func_name = args.encoder.split(':')
+        import sys, importlib
+        sys.path.append(code_path)
+        module = importlib.import_module(module_name)
+        encoder = getattr(module, func_name)()
+
     model.cuda()
     model.eval()
     
@@ -186,7 +194,7 @@ if __name__ == '__main__':
     parser.add_argument('--temperature', default=0.07, type=float,
                         help='Temperature used in the voting coefficient')
     
-    parser.add_argument('--model', default='pixio_vith16', type=str, help='model name')
+    parser.add_argument('--model', default='pixio_1b', type=str, help='model name')
     parser.add_argument('--pretrained_ckp', default='', type=str, help='Path to pretrained checkpoint to evaluate.')
     parser.add_argument('--dtype', default='bf16', choices=['fp16', 'bf16', 'fp32'],
                         help='inference precision')
@@ -194,6 +202,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
     parser.add_argument('--local_rank', default=0, type=int, help='Please ignore and do not set this argument.')
     parser.add_argument('--port', default=None, type=int, help='network port')
+    parser.add_argument('--outdir', type=str, default=None)
+
     args = parser.parse_args()
     
     misc.setup_distributed(port=args.port)
@@ -213,5 +223,9 @@ if __name__ == '__main__':
                 args.temperature
             )
             print(f'{k}-NN classifier result: Top1: {top1}, Top5: {top5}')
+            if k == 10 and args.outdir is not None:
+                import json
+                with open(f'{args.outdir}/knn/result.json', 'w') as f:
+                    json.dump({'key_metric': top1}, f)
     
     dist.barrier()
