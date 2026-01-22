@@ -1,0 +1,20 @@
+# UniCeption encoder string used for selecting encoder class (python3 -m uniception.models.encoders.list)
+# encoder_str: "pixio"
+# Name of the encoder
+# name: "pixio"
+# Data normalization type
+data_norm_type: "pixio"
+# Checkpoint size
+size: "huge"
+#image size
+img_size: 256
+# patch size
+patch_size: 16
+# n cls tokens
+n_cls_tokens: 8
+# Path to the pretrained encoder checkpoint
+pretrained_checkpoint_path: null
+# Flag to indicate whether to use gradient checkpointing for encoder
+gradient_checkpointing: True
+# Flag to indicate whether model class uses torch hub
+# uses_torch_hub: False
